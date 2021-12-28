@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -40,8 +41,20 @@ func main() {
 	r.POST("/institude", ic.CreateInstitude)
 	r.DELETE("/institude/:id", ic.DeleteInstitude)
 
+	// Chat All
+	cc := controllers.NewChatController(getSession())
+	r.GET("/chat/:id", cc.GetChat)
+	r.GET("/chat", cc.GetAllChatMessages)
+	r.POST("/chat", cc.CreateChat)
+	r.DELETE("/chat/:id", cc.DeleteChat)
+
 	// Listen and serve on
-	http.ListenAndServe("localhost:8080", r)
+	err := http.ListenAndServe("localhost:8080", r)
+	if err != nil {
+		return
+	}
+
+	fmt.Println("")
 }
 
 func getSession() *mgo.Session {
@@ -52,5 +65,7 @@ func getSession() *mgo.Session {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("Mongo Database successfully connected ")
 	return s
 }
